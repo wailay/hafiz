@@ -5,6 +5,7 @@ import ReciterDropdown, { Reciter } from "./components/ReciterDropdown";
 import SurahInput from "./components/SurahInput";
 import AyahRangeInput from "./components/AyahRangeInput";
 import ControlButtons from "./components/ControlButtons";
+import ThemeToggle from "./components/ThemeToggle";
 import { QuranApiService, AudioStream } from "./services/quranApi";
 
 interface UserPreferences {
@@ -210,9 +211,6 @@ export default function Home() {
 
   const handleSurahChange = (newSurahNumber: number) => {
     setSurahNumber(newSurahNumber);
-    // Clear current audio data and surah info when surah changes
-    setAudioStream(null);
-    setSurahInfo(null);
   };
 
   const handleAyahRangeChange = (
@@ -223,8 +221,6 @@ export default function Home() {
     if (newAyahFrom !== ayahFrom || newAyahTo !== ayahTo) {
       setAyahFrom(newAyahFrom);
       setAyahTo(newAyahTo);
-      // Clear current audio data when ayah range changes
-      setAudioStream(null);
     }
   };
 
@@ -235,16 +231,19 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen theme-bg flex flex-col">
+      {/* Theme Toggle */}
+      <ThemeToggle />
+
       {/* Loading Screen */}
       {!isPreferencesLoaded && (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold theme-text mb-2">
               Loading Quran Audio
             </h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Restoring your preferences...
             </p>
           </div>
@@ -254,18 +253,18 @@ export default function Home() {
       {/* Main Content - Only show when preferences are loaded */}
       {isPreferencesLoaded && (
         <main className="flex-1 max-w-md mx-auto w-full px-4 py-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+          <div className="theme-card-bg theme-card-border rounded-xl shadow-sm border p-6 space-y-6">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">Quran Audio</h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-2xl font-bold theme-text">Quran Audio</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Listen to beautiful Quran recitations
               </p>
             </div>
 
             {/* Reciter Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium theme-text mb-2">
                 Reciter
               </label>
               <ReciterDropdown
@@ -276,12 +275,12 @@ export default function Home() {
 
             {/* Surah Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium theme-text mb-2">
                 Surah Chapter
               </label>
               <SurahInput value={surahNumber} onChange={handleSurahChange} />
               {surahInfo && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {surahInfo.name} ({surahInfo.numberOfAyahs} ayahs)
                 </p>
               )}
@@ -289,7 +288,7 @@ export default function Home() {
 
             {/* Ayah Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium theme-text mb-2">
                 Ayah Range
               </label>
               <AyahRangeInput
@@ -299,7 +298,7 @@ export default function Home() {
                 onAyahToChange={(to) => handleAyahRangeChange(ayahFrom, to)}
               />
               {surahInfo && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Valid range: 1 - {surahInfo.numberOfAyahs}
                 </p>
               )}
@@ -310,17 +309,18 @@ export default function Home() {
               {audioStream !== null && !isLoading && (
                 <div className="space-y-4">
                   {/* Audio Info Display */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <div className="text-center">
-                      <h3 className="font-medium text-blue-900">
+                      <h3 className="font-medium text-blue-900 dark:text-blue-100">
                         {audioStream.surahName} - Ayah{" "}
                         {audioStream.ayahRange.from + currentAyahIndex}
                       </h3>
-                      <p className="text-sm text-blue-700 mt-1">
+                      <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                         {currentAyahIndex + 1} of {audioStream.totalAyahs} ayahs
                       </p>
                     </div>
                   </div>
+
                   {/* Progress Bar */}
                   {audioStream.totalAyahs > 1 && (
                     <div className="w-full">
@@ -364,6 +364,7 @@ export default function Home() {
 
             {/* Control Buttons - Always Visible */}
             <ControlButtons
+              audioStream={audioStream}
               isPlaying={isPlaying}
               isLooping={isLooping}
               onPlay={handlePlay}
@@ -376,7 +377,7 @@ export default function Home() {
             {isLoading && (
               <div className="text-center py-4">
                 <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                   Loading audio data...
                 </p>
               </div>
@@ -384,8 +385,10 @@ export default function Home() {
 
             {/* Error Display */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-700 text-sm">{error}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <p className="text-red-700 dark:text-red-300 text-sm">
+                  {error}
+                </p>
               </div>
             )}
           </div>

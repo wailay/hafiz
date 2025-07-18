@@ -51,13 +51,13 @@ export default function AyahRangeInput({
           value={ayahFrom}
           onChange={handleFromChange}
           onBlur={handleFromBlur}
-          className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors text-center text-gray-900 placeholder-gray-500"
+          className="w-full px-4 py-3 theme-input-bg theme-input-border theme-input-text rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors text-center placeholder-gray-500 dark:placeholder-gray-400 border"
           placeholder="From"
         />
       </div>
 
       <div className="flex items-center justify-center w-8">
-        <span className="text-gray-500 font-medium">—</span>
+        <span className="text-gray-500 dark:text-gray-400 font-medium">—</span>
       </div>
 
       <div className="flex-1">
@@ -66,7 +66,7 @@ export default function AyahRangeInput({
           value={ayahTo || ""}
           onChange={handleToChange}
           onBlur={handleToBlur}
-          className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors text-center text-gray-900 placeholder-gray-500"
+          className="w-full px-4 py-3 theme-input-bg theme-input-border theme-input-text rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors text-center placeholder-gray-500 dark:placeholder-gray-400 border"
           placeholder="To (optional)"
         />
       </div>

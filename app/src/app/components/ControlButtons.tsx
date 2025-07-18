@@ -1,9 +1,12 @@
 "use client";
 
+import { AudioStream } from "../services/quranApi";
+
 interface ControlButtonsProps {
   isPlaying: boolean;
   isLooping: boolean;
   isLoading: boolean;
+  audioStream: AudioStream | null;
   onPlay: () => void;
   onDownload: () => void;
   onLoop: () => void;
@@ -16,14 +19,15 @@ export default function ControlButtons({
   onPlay,
   onDownload,
   onLoop,
+  audioStream,
 }: ControlButtonsProps) {
   return (
     <div className="flex items-center justify-center space-x-6">
       {/* Download Button */}
       <button
         onClick={onDownload}
-        disabled={isLoading}
-        className="flex items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+        disabled={isLoading || !audioStream}
+        className="flex items-center justify-center w-12 h-12 theme-button-bg hover:theme-button-hover disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-600 theme-button-text rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
         title="Download MP3"
       >
         <svg
@@ -45,7 +49,7 @@ export default function ControlButtons({
       <button
         onClick={onPlay}
         disabled={isLoading}
-        className="flex items-center justify-center w-16 h-16 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg"
+        className="flex items-center justify-center w-16 h-16 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg"
         title={isPlaying ? "Pause" : "Play"}
       >
         {isLoading ? (
@@ -75,8 +79,8 @@ export default function ControlButtons({
         disabled={isLoading}
         className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
           isLooping
-            ? "bg-blue-100 text-blue-600"
-            : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+            ? "bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+            : "theme-button-bg hover:theme-button-hover theme-button-text"
         }`}
         title={isLooping ? "Disable loop" : "Enable loop"}
       >

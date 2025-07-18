@@ -3,6 +3,45 @@
 :root {
   --background: #f9fafb;
   --foreground: #111827;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-text: #111827;
+  --button-bg: #f3f4f6;
+  --button-hover: #e5e7eb;
+  --button-text: #374151;
+  --primary-bg: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-text: #ffffff;
+  --success-bg: #dbeafe;
+  --success-border: #bfdbfe;
+  --success-text: #1e40af;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+  --error-text: #dc2626;
+}
+
+[data-theme="dark"] {
+  --background: #111827;
+  --foreground: #f9fafb;
+  --card-bg: #1f2937;
+  --card-border: #374151;
+  --input-bg: #374151;
+  --input-border: #4b5563;
+  --input-text: #f9fafb;
+  --button-bg: #374151;
+  --button-hover: #4b5563;
+  --button-text: #f9fafb;
+  --primary-bg: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-text: #ffffff;
+  --success-bg: #1e3a8a;
+  --success-border: #3b82f6;
+  --success-text: #93c5fd;
+  --error-bg: #7f1d1d;
+  --error-border: #dc2626;
+  --error-text: #fca5a5;
 }
 
 @theme inline {
@@ -14,19 +53,13 @@
     "Liberation Mono", Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #111827;
-    --foreground: #f9fafb;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -35,17 +68,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--button-bg);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--button-hover);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--button-text);
 }
 
 /* Focus styles for better accessibility */
@@ -54,6 +87,47 @@ body {
 }
 
 *:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--primary-bg);
   outline-offset: 2px;
+}
+
+/* Custom theme classes */
+.theme-bg {
+  background-color: var(--background);
+}
+
+.theme-text {
+  color: var(--foreground);
+}
+
+.theme-card-bg {
+  background-color: var(--card-bg);
+}
+
+.theme-card-border {
+  border-color: var(--card-border);
+}
+
+.theme-input-bg {
+  background-color: var(--input-bg);
+}
+
+.theme-input-border {
+  border-color: var(--input-border);
+}
+
+.theme-input-text {
+  color: var(--input-text);
+}
+
+.theme-button-bg {
+  background-color: var(--button-bg);
+}
+
+.theme-button-hover {
+  background-color: var(--button-hover);
+}
+
+.theme-button-text {
+  color: var(--button-text);
 }
