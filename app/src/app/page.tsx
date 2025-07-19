@@ -433,13 +433,13 @@ export default function Home() {
               {audioStream !== null && !isLoading && (
                 <div className="space-y-4">
                   {/* Audio Info Display */}
-                  <div className="bg-[var(--success-bg)] border-[var(--success-border)] rounded-lg p-4 border">
+                  <div className="bg-[var(--card-bg)] border-[var(--card-border)] rounded-lg p-4 border shadow-sm">
                     <div className="text-center">
-                      <h3 className="font-medium text-[var(--success-text)]">
+                      <h3 className="font-medium text-[var(--foreground)]">
                         {audioStream.surahName} - Ayah{" "}
                         {audioStream.ayahRange.from + currentAyahIndex}
                       </h3>
-                      <p className="text-sm text-[var(--success-text)] opacity-80 mt-1">
+                      <p className="text-sm text-[var(--foreground)] opacity-60 mt-1">
                         {currentAyahIndex + 1} of {audioStream.totalAyahs} ayahs
                       </p>
                     </div>
