@@ -67,6 +67,7 @@ export interface AudioStream {
   ayahRange: { from: number; to: number };
   totalAyahs: number;
   currentAyahNumber: number;
+  ayahTexts: string[];
 }
 
 declare global {
@@ -221,6 +222,7 @@ export class QuranApiService {
         ayahRange: { from: ayahFrom, to: ayahTo },
         totalAyahs: audioInfos.length,
         currentAyahNumber: ayahFrom,
+        ayahTexts: audioInfos.map((info) => info.text || ""),
       };
     } finally {
       audioContext.close();

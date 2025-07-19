@@ -6,6 +6,7 @@ import SurahInput from "./components/SurahInput";
 import AyahRangeInput from "./components/AyahRangeInput";
 import ControlButtons from "./components/ControlButtons";
 import ThemeToggle from "./components/ThemeToggle";
+import AyahText from "./components/AyahText";
 import { QuranApiService, AudioStream } from "./services/quranApi";
 import { APP_DESCRIPTION } from "./constant";
 
@@ -368,7 +369,7 @@ export default function Home() {
 
       {/* Main Content - Only show when preferences are loaded */}
       {isPreferencesLoaded && (
-        <main className="flex-1 max-w-md mx-auto w-full px-4 py-8">
+        <main className="flex-1 max-w-xl mx-auto w-full px-4 py-8">
           <div className="bg-[var(--card-bg)] border-[var(--card-border)] rounded-xl shadow-sm border p-6 space-y-6">
             {/* Header */}
             <div className="text-center">
@@ -429,7 +430,7 @@ export default function Home() {
             </div>
 
             {/* Content Display Area */}
-            <div className="rounded-lg pt-2 pb-4 px-2 text-center">
+            <div className="rounded-lg pt-2 text-center">
               {audioStream !== null && !isLoading && (
                 <div className="space-y-4">
                   {/* Audio Info Display */}
@@ -443,45 +444,53 @@ export default function Home() {
                         {currentAyahIndex + 1} of {audioStream.totalAyahs} ayahs
                       </p>
                     </div>
+
+                    {/* Ayah Text Display */}
+                    {audioStream.ayahTexts &&
+                      audioStream.ayahTexts[currentAyahIndex] && (
+                        <div className="pt-4 px-2 text-center min-h-[170px] max-h-[170px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                          <AyahText
+                            text={audioStream.ayahTexts[currentAyahIndex]}
+                          />
+                        </div>
+                      )}
                   </div>
 
-                  {/* Progress Bar */}
-                  {audioStream.totalAyahs > 1 && (
-                    <div className="w-full">
-                      <audio
-                        ref={audioRef}
-                        className="w-full"
-                        controls
-                        src={audioStream.audioUrl}
-                        loop={isLooping}
-                        autoPlay={true}
-                        onTimeUpdate={(e) => {
-                          const audio = e.target as HTMLAudioElement;
-                          const currentTime = audio.currentTime;
+                  {/* Audio Player */}
+                  <div className="w-full">
+                    <audio
+                      ref={audioRef}
+                      className="w-full"
+                      controls
+                      src={audioStream.audioUrl}
+                      loop={isLooping}
+                      autoPlay={true}
+                      onTimeUpdate={(e) => {
+                        const audio = e.target as HTMLAudioElement;
+                        const currentTime = audio.currentTime;
 
-                          // Find which ayah we're currently in based on timestamps
-                          const currentAyah = audioStream.ayahTimestamps.find(
-                            (timestamp) =>
-                              currentTime >= timestamp.start &&
-                              currentTime < timestamp.end
-                          );
+                        // Find which ayah we're currently in based on timestamps
+                        const currentAyah = audioStream.ayahTimestamps.find(
+                          (timestamp) =>
+                            currentTime >= timestamp.start &&
+                            currentTime < timestamp.end
+                        );
 
-                          if (
-                            currentAyah &&
-                            currentAyah.ayahIndex !== currentAyahIndex
-                          ) {
-                            setCurrentAyahIndex(currentAyah.ayahIndex);
-                          }
-                        }}
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
-                        onEnded={() => {
-                          setIsPlaying(false);
-                          setCurrentAyahIndex(0);
-                        }}
-                      />
-                    </div>
-                  )}
+                        if (
+                          currentAyah &&
+                          currentAyah.ayahIndex !== currentAyahIndex
+                        ) {
+                          setCurrentAyahIndex(currentAyah.ayahIndex);
+                        }
+                      }}
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
+                      onEnded={() => {
+                        setIsPlaying(false);
+                        setCurrentAyahIndex(0);
+                      }}
+                    />
+                  </div>
                 </div>
               )}
             </div>
