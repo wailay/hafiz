@@ -84,65 +84,50 @@ export default function ReciterDropdown({
           <span className="block truncate font-medium theme-text">
             {selectedReciter.englishName}
           </span>
-          <span className="block truncate text-sm text-gray-500 dark:text-gray-400">
+          <span className="block truncate text-sm theme-text opacity-60">
             {selectedReciter.arabicName}
           </span>
         </div>
-        <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <svg
-            className="h-5 w-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+            className="h-5 w-5 theme-text opacity-40"
+            viewBox="0 0 20 20"
+            fill="currentColor"
           >
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
+              fillRule="evenodd"
+              d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+              clipRule="evenodd"
             />
           </svg>
         </span>
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 theme-card-bg theme-card-border rounded-lg shadow-lg border">
-          <div className="p-2">
-            <input
-              type="text"
-              placeholder="Search reciters..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 text-sm theme-input-bg theme-input-border theme-input-text rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border"
-              autoFocus
-            />
-          </div>
-
-          <div className="max-h-60 overflow-auto">
-            {filteredReciters.length > 0 ? (
-              filteredReciters.map((reciter) => (
+        <div className="absolute z-10 mt-1 w-full theme-card-bg theme-card-border shadow-lg rounded-md border">
+          <ul className="max-h-60 overflow-auto rounded-md py-1 text-base">
+            {filteredReciters.map((reciter) => (
+              <li key={reciter.id}>
                 <button
-                  key={reciter.id}
                   onClick={() => handleReciterSelect(reciter)}
-                  className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 ${
+                  className={`w-full px-4 py-3 text-left hover:theme-hover-bg focus:outline-none focus:theme-hover-bg ${
                     selectedReciter.id === reciter.id
-                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                      ? "theme-success-bg theme-success-text"
                       : "theme-text"
                   }`}
                 >
                   <div className="flex flex-col">
                     <span className="font-medium">{reciter.englishName}</span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm theme-text opacity-60">
                       {reciter.arabicName}
                     </span>
                   </div>
                 </button>
-              ))
-            ) : (
-              <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                No reciters found
-              </div>
-            )}
+              </li>
+            ))}
+          </ul>
+          <div className="px-4 py-3 text-sm theme-text opacity-60">
+            {filteredReciters.length} reciters available
           </div>
         </div>
       )}

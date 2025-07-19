@@ -48,26 +48,26 @@ export default function AyahRangeInput({
       <div className="flex-1">
         <input
           type="number"
+          min="1"
           value={ayahFrom}
           onChange={handleFromChange}
           onBlur={handleFromBlur}
-          className="w-full px-4 py-3 theme-input-bg theme-input-border theme-input-text rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors text-center placeholder-gray-500 dark:placeholder-gray-400 border"
+          className="w-full px-4 py-3 theme-input-bg theme-input-border theme-input-text rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors text-center placeholder:theme-placeholder border"
           placeholder="From"
         />
       </div>
 
-      <div className="flex items-center justify-center w-8">
-        <span className="text-gray-500 dark:text-gray-400 font-medium">—</span>
-      </div>
+      <span className="theme-text font-medium">—</span>
 
       <div className="flex-1">
         <input
           type="number"
+          min="1"
           value={ayahTo || ""}
           onChange={handleToChange}
           onBlur={handleToBlur}
-          className="w-full px-4 py-3 theme-input-bg theme-input-border theme-input-text rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors text-center placeholder-gray-500 dark:placeholder-gray-400 border"
-          placeholder="To (optional)"
+          className="w-full px-4 py-3 theme-input-bg theme-input-border theme-input-text rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors text-center placeholder:theme-placeholder border"
+          placeholder="To"
         />
       </div>
     </div>

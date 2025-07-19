@@ -7,6 +7,7 @@ import AyahRangeInput from "./components/AyahRangeInput";
 import ControlButtons from "./components/ControlButtons";
 import ThemeToggle from "./components/ThemeToggle";
 import { QuranApiService, AudioStream } from "./services/quranApi";
+import { APP_TITLE, APP_DESCRIPTION } from "./constant";
 
 interface UserPreferences {
   selectedReciter: {
@@ -41,6 +42,13 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(0);
   const [currentAyahIndex, setCurrentAyahIndex] = useState(0);
   const [isPreferencesLoaded, setIsPreferencesLoaded] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [originalSettings, setOriginalSettings] = useState({
+    reciter: null as Reciter | null,
+    surah: 0,
+    ayahFrom: 0,
+    ayahTo: null as number | null,
+  });
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Load user preferences on component mount
@@ -50,26 +58,27 @@ export default function Home() {
         const stored = localStorage.getItem("quran_user_preferences");
         if (stored) {
           const preferences = JSON.parse(stored) as UserPreferences;
-
-          // Validate the stored preferences
           if (
             preferences &&
             preferences.selectedReciter &&
-            typeof preferences.surahNumber === "number" &&
-            preferences.surahNumber >= 1 &&
-            preferences.surahNumber <= 114 &&
-            typeof preferences.ayahFrom === "number" &&
-            preferences.ayahFrom >= 1 &&
-            (preferences.ayahTo === null ||
-              (typeof preferences.ayahTo === "number" &&
-                preferences.ayahTo >= 1)) &&
-            typeof preferences.isLooping === "boolean"
+            preferences.surahNumber &&
+            preferences.ayahFrom &&
+            preferences.ayahTo &&
+            preferences.isLooping !== undefined
           ) {
             setSelectedReciter(preferences.selectedReciter);
             setSurahNumber(preferences.surahNumber);
             setAyahFrom(preferences.ayahFrom);
             setAyahTo(preferences.ayahTo);
             setIsLooping(preferences.isLooping);
+
+            // Set original settings for change tracking
+            setOriginalSettings({
+              reciter: preferences.selectedReciter,
+              surah: preferences.surahNumber,
+              ayahFrom: preferences.ayahFrom,
+              ayahTo: preferences.ayahTo,
+            });
           }
         }
       } catch (error) {
@@ -78,8 +87,6 @@ export default function Home() {
         setIsPreferencesLoaded(true);
       }
     };
-
-    // Small delay to ensure smooth loading experience
     setTimeout(loadPreferences, 100);
   }, []);
 
@@ -209,26 +216,88 @@ export default function Home() {
     }
   };
 
+  const handleReciterChange = (reciter: Reciter) => {
+    setSelectedReciter(reciter);
+    checkForChanges();
+  };
+
   const handleSurahChange = (newSurahNumber: number) => {
     setSurahNumber(newSurahNumber);
+    checkForChanges();
   };
 
   const handleAyahRangeChange = (
     newAyahFrom: number,
     newAyahTo: number | null
   ) => {
-    // Only clear audio if the values actually changed
-    if (newAyahFrom !== ayahFrom || newAyahTo !== ayahTo) {
-      setAyahFrom(newAyahFrom);
-      setAyahTo(newAyahTo);
+    setAyahFrom(newAyahFrom);
+    setAyahTo(newAyahTo);
+    checkForChanges();
+  };
+
+  const checkForChanges = () => {
+    const currentSettings = {
+      reciter: selectedReciter,
+      surah: surahNumber,
+      ayahFrom: ayahFrom,
+      ayahTo: ayahTo,
+    };
+
+    const hasChanges =
+      originalSettings.reciter?.id !== currentSettings.reciter?.id ||
+      originalSettings.surah !== currentSettings.surah ||
+      originalSettings.ayahFrom !== currentSettings.ayahFrom ||
+      originalSettings.ayahTo !== currentSettings.ayahTo;
+
+    setHasChanges(hasChanges);
+  };
+
+  const handleUpdateAudio = async () => {
+    if (hasChanges) {
+      // Update original settings first
+      const newOriginalSettings = {
+        reciter: selectedReciter,
+        surah: surahNumber,
+        ayahFrom: ayahFrom,
+        ayahTo: ayahTo,
+      };
+
+      setOriginalSettings(newOriginalSettings);
+      setHasChanges(false);
+
+      // Clear current audio stream and fetch new audio
+      setAudioStream(null);
+      setError(null);
+      setIsPlaying(false);
+      setCurrentAyahIndex(0);
+
+      // Fetch new audio with updated settings
+      try {
+        setIsLoading(true);
+        await fetchAudioData();
+        setIsPlaying(true);
+      } catch (error) {
+        console.error("Failed to update audio:", error);
+        setError("Failed to load new audio. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const handleReciterChange = (newReciter: Reciter) => {
-    setSelectedReciter(newReciter);
-    // Clear current audio data when reciter changes
-    setAudioStream(null);
-  };
+  // Monitor changes and update hasChanges state
+  useEffect(() => {
+    if (isPreferencesLoaded) {
+      checkForChanges();
+    }
+  }, [
+    selectedReciter,
+    surahNumber,
+    ayahFrom,
+    ayahTo,
+    isPreferencesLoaded,
+    checkForChanges,
+  ]);
 
   return (
     <div className="min-h-screen theme-bg flex flex-col">
@@ -243,7 +312,7 @@ export default function Home() {
             <h2 className="text-xl font-semibold theme-text mb-2">
               Loading Quran Audio
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm theme-text opacity-60">
               Restoring your preferences...
             </p>
           </div>
@@ -256,9 +325,14 @@ export default function Home() {
           <div className="theme-card-bg theme-card-border rounded-xl shadow-sm border p-6 space-y-6">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold theme-text">Quran Audio</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Listen to beautiful Quran recitations
+              <h1 className="text-2xl md:text-2xl lg:text-3xl font-bold leading-tight">
+                <span className="theme-text">Quran</span>
+                <span className="bg-gradient-to-r from-blue-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                  Memorizer
+                </span>
+              </h1>
+              <p className="text-sm theme-text opacity-60 mt-1">
+                {APP_DESCRIPTION}
               </p>
             </div>
 
@@ -278,9 +352,12 @@ export default function Home() {
               <label className="block text-sm font-medium theme-text mb-2">
                 Surah Chapter
               </label>
-              <SurahInput value={surahNumber} onChange={handleSurahChange} />
+              <SurahInput
+                surahNumberValue={surahNumber}
+                onChange={handleSurahChange}
+              />
               {surahInfo && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm theme-text opacity-60 mt-1">
                   {surahInfo.name} ({surahInfo.numberOfAyahs} ayahs)
                 </p>
               )}
@@ -298,24 +375,24 @@ export default function Home() {
                 onAyahToChange={(to) => handleAyahRangeChange(ayahFrom, to)}
               />
               {surahInfo && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm theme-text opacity-60 mt-1">
                   Valid range: 1 - {surahInfo.numberOfAyahs}
                 </p>
               )}
             </div>
 
             {/* Content Display Area */}
-            <div className="rounded-lg p-8 text-center">
+            <div className="rounded-lg pt-2 pb-4 px-2 text-center">
               {audioStream !== null && !isLoading && (
                 <div className="space-y-4">
                   {/* Audio Info Display */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <div className="theme-success-bg theme-success-border rounded-lg p-4 border">
                     <div className="text-center">
-                      <h3 className="font-medium text-blue-900 dark:text-blue-100">
+                      <h3 className="font-medium theme-success-text">
                         {audioStream.surahName} - Ayah{" "}
                         {audioStream.ayahRange.from + currentAyahIndex}
                       </h3>
-                      <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                      <p className="text-sm theme-success-text opacity-80 mt-1">
                         {currentAyahIndex + 1} of {audioStream.totalAyahs} ayahs
                       </p>
                     </div>
@@ -364,31 +441,21 @@ export default function Home() {
 
             {/* Control Buttons - Always Visible */}
             <ControlButtons
-              audioStream={audioStream}
               isPlaying={isPlaying}
               isLooping={isLooping}
               onPlay={handlePlay}
               onDownload={handleDownload}
               onLoop={handleLoop}
               isLoading={isLoading}
+              hasChanges={hasChanges}
+              onUpdateAudio={handleUpdateAudio}
+              audioStream={audioStream}
             />
-
-            {/* Loading State */}
-            {isLoading && (
-              <div className="text-center py-4">
-                <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  Loading audio data...
-                </p>
-              </div>
-            )}
 
             {/* Error Display */}
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <p className="text-red-700 dark:text-red-300 text-sm">
-                  {error}
-                </p>
+              <div className="theme-error-bg theme-error-border rounded-lg p-4 border">
+                <p className="theme-error-text text-sm">{error}</p>
               </div>
             )}
           </div>
