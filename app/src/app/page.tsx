@@ -326,7 +326,7 @@ export default function Home() {
             {/* Header */}
             <div className="text-center">
               <h1 className="text-2xl md:text-2xl lg:text-3xl font-bold leading-tight">
-                <span className="theme-text">Quran</span>
+                <span className="theme-text">Quran </span>
                 <span className="bg-gradient-to-r from-blue-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
                   Memorizer
                 </span>
