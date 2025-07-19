@@ -2,8 +2,9 @@
 
 import localFont from "next/font/local";
 
-interface AyahTextProps {
+interface ArabicTextProps {
   text: string;
+  fontSize?: string;
 }
 
 const uthmanicHafsFont = localFont({
@@ -11,7 +12,7 @@ const uthmanicHafsFont = localFont({
   display: "swap",
 });
 
-export default function AyahText({ text }: AyahTextProps) {
+export default function ArabicText({ text, fontSize }: ArabicTextProps) {
   return (
     <div
       className={`text-lg leading-relaxed text-[var(--foreground)] ${uthmanicHafsFont.className}`}
@@ -19,7 +20,7 @@ export default function AyahText({ text }: AyahTextProps) {
         direction: "rtl",
         textAlign: "right",
         lineHeight: "2",
-        fontSize: "1.75rem",
+        fontSize: fontSize || "1.75rem",
       }}
     >
       {text}

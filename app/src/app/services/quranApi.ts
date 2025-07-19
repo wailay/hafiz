@@ -54,6 +54,7 @@ export interface SurahInfo {
 export interface AudioInfo {
   audioUrl: string;
   surahName: string;
+  surahArabicName: string;
   ayahNumberInSurah: number;
   ayahNumber: number;
   text?: string;
@@ -64,6 +65,7 @@ export interface AudioStream {
   totalDuration: number;
   ayahTimestamps: { start: number; end: number; ayahIndex: number }[];
   surahName: string;
+  surahArabicName: string;
   ayahRange: { from: number; to: number };
   totalAyahs: number;
   currentAyahNumber: number;
@@ -98,6 +100,7 @@ export class QuranApiService {
     return {
       audioUrl: ayahData.audio,
       surahName: ayahData.surah.englishName,
+      surahArabicName: ayahData.surah.name,
       ayahNumberInSurah: ayahData.numberInSurah,
       ayahNumber: ayahData.number,
       text: ayahData.text,
@@ -219,6 +222,7 @@ export class QuranApiService {
         totalDuration,
         ayahTimestamps,
         surahName: audioInfos[0].surahName,
+        surahArabicName: audioInfos[0].surahArabicName,
         ayahRange: { from: ayahFrom, to: ayahTo },
         totalAyahs: audioInfos.length,
         currentAyahNumber: ayahFrom,

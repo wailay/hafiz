@@ -6,7 +6,7 @@ import SurahInput from "./components/SurahInput";
 import AyahRangeInput from "./components/AyahRangeInput";
 import ControlButtons from "./components/ControlButtons";
 import ThemeToggle from "./components/ThemeToggle";
-import AyahText from "./components/AyahText";
+import ArabicText from "./components/ArabicText";
 import { QuranApiService, AudioStream } from "./services/quranApi";
 import { APP_DESCRIPTION } from "./constant";
 
@@ -436,20 +436,26 @@ export default function Home() {
                   {/* Audio Info Display */}
                   <div className="bg-[var(--card-bg)] border-[var(--card-border)] rounded-lg p-4 border shadow-sm">
                     <div className="text-center">
-                      <h3 className="font-medium text-[var(--foreground)]">
-                        {audioStream.surahName} - Ayah{" "}
-                        {audioStream.ayahRange.from + currentAyahIndex}
-                      </h3>
-                      <p className="text-sm text-[var(--foreground)] opacity-60 mt-1">
-                        {currentAyahIndex + 1} of {audioStream.totalAyahs} ayahs
+                      <div className="flex justify-center items-center gap-2 mb-2">
+                        <h3 className="font-medium text-[var(--foreground)]">
+                          {audioStream.surahName} -{" "}
+                        </h3>
+                        <ArabicText
+                          fontSize="1rem"
+                          text={audioStream.surahArabicName}
+                        />
+                      </div>
+                      <p className="text-sm text-[var(--foreground)] opacity-60 mb-2">
+                        {audioStream.ayahRange.from + currentAyahIndex} /{" "}
+                        {audioStream.ayahRange.to}
                       </p>
                     </div>
 
                     {/* Ayah Text Display */}
                     {audioStream.ayahTexts &&
                       audioStream.ayahTexts[currentAyahIndex] && (
-                        <div className="pt-4 px-2 text-center min-h-[170px] max-h-[170px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
-                          <AyahText
+                        <div className="pt-4 mb-2 px-2 text-center min-h-[170px] max-h-[170px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                          <ArabicText
                             text={audioStream.ayahTexts[currentAyahIndex]}
                           />
                         </div>
