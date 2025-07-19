@@ -228,6 +228,13 @@ export default function Home() {
   const handlePlay = async () => {
     if (isLoading) return;
 
+    // If audio is currently playing, pause it
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      return;
+    }
+
     if (hasChanges) {
       // Load new audio with current settings
       try {
