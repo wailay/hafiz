@@ -28,6 +28,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setThemeState(savedTheme);
       console.log("Loaded theme from localStorage:", savedTheme);
     } else {
+      // Default to system theme if no saved theme or invalid theme
+      setThemeState("system");
       console.log("Using default system theme");
     }
   }, []);
