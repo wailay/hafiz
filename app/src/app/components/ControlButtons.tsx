@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Tooltip from "./Tooltip";
 
 interface AudioStream {
@@ -23,8 +22,8 @@ interface ControlButtonsProps {
   onLoop: () => void;
   isLoading: boolean;
   hasChanges: boolean;
-  onUpdateAudio: () => void;
   audioStream: AudioStream | null;
+  isDownloading: boolean;
 }
 
 export default function ControlButtons({
@@ -35,50 +34,39 @@ export default function ControlButtons({
   onLoop,
   isLoading,
   hasChanges,
-  onUpdateAudio,
   audioStream,
+  isDownloading,
 }: ControlButtonsProps) {
-  const [showButton, setShowButton] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
-
-  useEffect(() => {
-    if (hasChanges) {
-      setShowButton(true);
-      setIsExiting(false);
-    } else if (showButton && !hasChanges) {
-      setIsExiting(true);
-      const timer = setTimeout(() => {
-        setShowButton(false);
-        setIsExiting(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [hasChanges, showButton]);
-
   return (
     <div className="flex items-center justify-center">
       {/* Single pill-shaped control bar container */}
       <div className="bg-[var(--card-bg)] border-[var(--card-border)] rounded-full shadow-sm border px-4 py-3 flex items-center space-x-4">
         {/* Download Button */}
-        <Tooltip content="Download MP3">
+        <Tooltip content={isDownloading ? "Downloading..." : "Download WAV"}>
           <button
             onClick={onDownload}
-            disabled={isLoading || !audioStream}
-            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[var(--button-hover)] disabled:bg-[var(--button-bg)] disabled:opacity-50 disabled:text-[var(--foreground)] disabled:opacity-40 text-[var(--foreground)] transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
+            disabled={isLoading || !audioStream || isDownloading}
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[var(--button-hover)] disabled:bg-[var(--button-bg)] disabled:opacity-50 disabled:text-[var(--foreground)] disabled:opacity-40 text-[var(--foreground)] transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 relative"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
+            {isDownloading ? (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-4 h-4 border-2 border-[var(--foreground)] border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            )}
           </button>
         </Tooltip>
 
@@ -86,7 +74,9 @@ export default function ControlButtons({
         <div className="w-px h-6 bg-[var(--card-border)]"></div>
 
         {/* Play Button */}
-        <Tooltip content={isPlaying ? "Pause" : "Play"}>
+        <Tooltip
+          content={hasChanges ? "Load new audio" : isPlaying ? "Pause" : "Play"}
+        >
           <button
             onClick={onPlay}
             disabled={isLoading}
@@ -143,49 +133,6 @@ export default function ControlButtons({
             </svg>
           </button>
         </Tooltip>
-
-        {/* Update Audio Button - Animated */}
-        {showButton && (
-          <>
-            {/* Divider */}
-            <div
-              className={`w-px h-6 bg-[var(--card-border)] ${
-                isExiting ? "animate-pulse" : "animate-pulse"
-              }`}
-            ></div>
-
-            {/* Update Button */}
-            <Tooltip content="Update audio with new settings">
-              <button
-                onClick={onUpdateAudio}
-                disabled={isLoading}
-                className={`flex items-center justify-center w-8 h-8 bg-[var(--foreground)] hover:bg-[var(--button-text)] text-[var(--background)] rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-400 ${
-                  isExiting ? "update-button-exit" : "update-button-animate"
-                }`}
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M4 12a8 8 0 018-8 8.5 8.5 0 015.5 2L19 8M19 8v-4M19 8h-4m"
-                  ></path>
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 8v8l6-4z"
-                  ></path>
-                </svg>
-              </button>
-            </Tooltip>
-          </>
-        )}
       </div>
     </div>
   );

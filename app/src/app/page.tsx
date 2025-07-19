@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import ReciterDropdown, { Reciter } from "./components/ReciterDropdown";
 import SurahInput from "./components/SurahInput";
 import AyahRangeInput from "./components/AyahRangeInput";
 import ControlButtons from "./components/ControlButtons";
 import ThemeToggle from "./components/ThemeToggle";
 import { QuranApiService, AudioStream } from "./services/quranApi";
-import { APP_TITLE, APP_DESCRIPTION } from "./constant";
+import { APP_DESCRIPTION } from "./constant";
 
 interface UserPreferences {
   selectedReciter: {
@@ -39,17 +39,14 @@ export default function Home() {
     numberOfAyahs: number;
     name: string;
   } | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
   const [currentAyahIndex, setCurrentAyahIndex] = useState(0);
   const [isPreferencesLoaded, setIsPreferencesLoaded] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [originalSettings, setOriginalSettings] = useState({
-    reciter: null as Reciter | null,
-    surah: 0,
-    ayahFrom: 0,
-    ayahTo: null as number | null,
-  });
+  const [originalSettings, setOriginalSettings] =
+    useState<UserPreferences | null>(null);
+  const [pausedTime, setPausedTime] = useState<number>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Load user preferences on component mount
   useEffect(() => {
@@ -74,10 +71,11 @@ export default function Home() {
 
             // Set original settings for change tracking
             setOriginalSettings({
-              reciter: preferences.selectedReciter,
-              surah: preferences.surahNumber,
+              selectedReciter: preferences.selectedReciter,
+              surahNumber: preferences.surahNumber,
               ayahFrom: preferences.ayahFrom,
               ayahTo: preferences.ayahTo,
+              isLooping: preferences.isLooping,
             });
           }
         }
@@ -153,58 +151,164 @@ export default function Home() {
     }
   };
 
-  const handlePlay = async () => {
-    if (audioStream === null) {
-      console.log("Fetching audio data");
-      // Fetch audio data when user wants to play but no data is loaded
-      await fetchAudioData();
-    }
+  // State for tracking original settings and audio position
+  const checkForChanges = useCallback(() => {
+    if (!originalSettings) return false;
 
-    console.log("Playing audio - audioRef", audioRef.current);
-    // Use the audio element's play/pause functionality
-    if (audioRef.current) {
-      if (audioRef.current.paused) {
-        audioRef.current.play();
+    const hasReciterChanged =
+      selectedReciter.id !== originalSettings.selectedReciter.id;
+    const hasSurahChanged = surahNumber !== originalSettings.surahNumber;
+    const hasAyahFromChanged = ayahFrom !== originalSettings.ayahFrom;
+    const hasAyahToChanged = ayahTo !== originalSettings.ayahTo;
+
+    return (
+      hasReciterChanged ||
+      hasSurahChanged ||
+      hasAyahFromChanged ||
+      hasAyahToChanged
+    );
+  }, [originalSettings, selectedReciter, surahNumber, ayahFrom, ayahTo]);
+
+  // Monitor changes and pause audio when settings change
+  useEffect(() => {
+    if (isPreferencesLoaded && originalSettings) {
+      const changes = checkForChanges();
+      setHasChanges(changes);
+
+      if (changes && isPlaying) {
+        // Pause audio and store current time
+        if (audioRef.current) {
+          setPausedTime(audioRef.current.currentTime);
+        }
+        setIsPlaying(false);
+        audioRef.current?.pause();
+      } else if (!changes && !isPlaying && audioStream && pausedTime > 0) {
+        // Resume audio from where it was paused if settings are reverted
+        setIsPlaying(true);
+        if (audioRef.current) {
+          audioRef.current.currentTime = pausedTime;
+          audioRef.current.play();
+        }
+      }
+    }
+  }, [
+    selectedReciter,
+    surahNumber,
+    ayahFrom,
+    ayahTo,
+    isPreferencesLoaded,
+    originalSettings,
+    checkForChanges,
+    isPlaying,
+    audioStream,
+    pausedTime,
+  ]);
+
+  // Set original settings when preferences are first loaded
+  useEffect(() => {
+    if (isPreferencesLoaded && !originalSettings) {
+      setOriginalSettings({
+        selectedReciter,
+        surahNumber,
+        ayahFrom,
+        ayahTo,
+        isLooping,
+      });
+    }
+  }, [
+    isPreferencesLoaded,
+    selectedReciter,
+    surahNumber,
+    ayahFrom,
+    ayahTo,
+    isLooping,
+    originalSettings,
+  ]);
+
+  const handlePlay = async () => {
+    if (isLoading) return;
+
+    if (hasChanges) {
+      // Load new audio with current settings
+      try {
+        setIsLoading(true);
+        setError(null);
+        setAudioStream(null);
+        setCurrentAyahIndex(0);
+        setPausedTime(0);
+
+        await fetchAudioData();
+        setIsPlaying(true);
+
+        // Update original settings to current settings
+        setOriginalSettings({
+          selectedReciter,
+          surahNumber,
+          ayahFrom,
+          ayahTo,
+          isLooping,
+        });
+        setHasChanges(false);
+      } catch (error) {
+        console.error("Failed to load new audio:", error);
+        setError("Failed to load new audio. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      // Resume or start playing current audio
+      if (audioStream) {
+        setIsPlaying(true);
+        audioRef.current?.play();
       } else {
-        audioRef.current.pause();
+        // No audio loaded yet, load with current settings
+        try {
+          setIsLoading(true);
+          setError(null);
+          await fetchAudioData();
+          setIsPlaying(true);
+        } catch (error) {
+          console.error("Failed to load audio:", error);
+          setError("Failed to load audio. Please try again.");
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
   };
 
   const handleDownload = async () => {
-    if (audioStream === null) {
-      // Fetch audio data if not already loaded
-      await fetchAudioData();
-    }
+    if (!audioStream) return;
 
-    // Download the audio stream
-    if (audioStream !== null && audioRef.current) {
-      try {
-        // Get the audio source URL
-        const audioUrl = audioRef.current.src;
+    try {
+      setIsDownloading(true);
+      setError(null);
 
-        // Fetch the audio data
-        const response = await fetch(audioUrl);
-
-        if (!response.ok) {
-          throw new Error(`Failed to download audio: ${response.statusText}`);
-        }
-
-        const blob = await response.blob();
-
-        // Create download link
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${selectedReciter.englishName}_${audioStream.surahName}_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.wav`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error("Download error:", error);
-        setError("Failed to download audio. Please try again.");
+      // Fetch the WAV audio
+      const response = await fetch(audioStream.audioUrl);
+      if (!response.ok) {
+        throw new Error("Failed to fetch audio file");
       }
+
+      const wavBlob = await response.blob();
+
+      // Generate WAV filename
+      const wavFilename = `${audioStream.surahName}_Ayah_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.wav`;
+
+      // Download WAV directly
+      const url = URL.createObjectURL(wavBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = wavFilename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+      setError("Failed to download audio. Please try again.");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -234,70 +338,6 @@ export default function Home() {
     setAyahTo(newAyahTo);
     checkForChanges();
   };
-
-  const checkForChanges = () => {
-    const currentSettings = {
-      reciter: selectedReciter,
-      surah: surahNumber,
-      ayahFrom: ayahFrom,
-      ayahTo: ayahTo,
-    };
-
-    const hasChanges =
-      originalSettings.reciter?.id !== currentSettings.reciter?.id ||
-      originalSettings.surah !== currentSettings.surah ||
-      originalSettings.ayahFrom !== currentSettings.ayahFrom ||
-      originalSettings.ayahTo !== currentSettings.ayahTo;
-
-    setHasChanges(hasChanges);
-  };
-
-  const handleUpdateAudio = async () => {
-    if (hasChanges) {
-      // Update original settings first
-      const newOriginalSettings = {
-        reciter: selectedReciter,
-        surah: surahNumber,
-        ayahFrom: ayahFrom,
-        ayahTo: ayahTo,
-      };
-
-      setOriginalSettings(newOriginalSettings);
-      setHasChanges(false);
-
-      // Clear current audio stream and fetch new audio
-      setAudioStream(null);
-      setError(null);
-      setIsPlaying(false);
-      setCurrentAyahIndex(0);
-
-      // Fetch new audio with updated settings
-      try {
-        setIsLoading(true);
-        await fetchAudioData();
-        setIsPlaying(true);
-      } catch (error) {
-        console.error("Failed to update audio:", error);
-        setError("Failed to load new audio. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  // Monitor changes and update hasChanges state
-  useEffect(() => {
-    if (isPreferencesLoaded) {
-      checkForChanges();
-    }
-  }, [
-    selectedReciter,
-    surahNumber,
-    ayahFrom,
-    ayahTo,
-    isPreferencesLoaded,
-    checkForChanges,
-  ]);
 
   return (
     <div className="min-h-screen theme-bg flex flex-col">
@@ -448,8 +488,8 @@ export default function Home() {
               onLoop={handleLoop}
               isLoading={isLoading}
               hasChanges={hasChanges}
-              onUpdateAudio={handleUpdateAudio}
               audioStream={audioStream}
+              isDownloading={isDownloading}
             />
 
             {/* Error Display */}

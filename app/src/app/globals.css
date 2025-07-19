@@ -177,11 +177,3 @@ body {
     transform: scale(0.8);
   }
 }
-
-.update-button-animate {
-  animation: slideIn 0.5s ease-out, borderOpen 0.5s ease-out;
-}
-
-.update-button-exit {
-  animation: slideOut 0.5s ease-out, borderClose 0.5s ease-out;
-}
