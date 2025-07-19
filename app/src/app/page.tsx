@@ -309,10 +309,10 @@ export default function Home() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <h2 className="text-xl font-semibold theme-text mb-2">
+            <h2 className="text-xl font-semibold text-[var(--foreground)] mb-2">
               Loading Quran Audio
             </h2>
-            <p className="text-sm theme-text opacity-60">
+            <p className="text-sm text-[var(--foreground)] opacity-60">
               Restoring your preferences...
             </p>
           </div>
@@ -322,23 +322,23 @@ export default function Home() {
       {/* Main Content - Only show when preferences are loaded */}
       {isPreferencesLoaded && (
         <main className="flex-1 max-w-md mx-auto w-full px-4 py-8">
-          <div className="theme-card-bg theme-card-border rounded-xl shadow-sm border p-6 space-y-6">
+          <div className="bg-[var(--card-bg)] border-[var(--card-border)] rounded-xl shadow-sm border p-6 space-y-6">
             {/* Header */}
             <div className="text-center">
               <h1 className="text-2xl md:text-2xl lg:text-3xl font-bold leading-tight">
-                <span className="theme-text">Quran </span>
+                <span className="text-[var(--foreground)]">Quran </span>
                 <span className="bg-gradient-to-r from-blue-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
                   Memorizer
                 </span>
               </h1>
-              <p className="text-sm theme-text opacity-60 mt-1">
+              <p className="text-sm text-[var(--foreground)] opacity-60 mt-1">
                 {APP_DESCRIPTION}
               </p>
             </div>
 
             {/* Reciter Selection */}
             <div>
-              <label className="block text-sm font-medium theme-text mb-2">
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                 Reciter
               </label>
               <ReciterDropdown
@@ -349,7 +349,7 @@ export default function Home() {
 
             {/* Surah Input */}
             <div>
-              <label className="block text-sm font-medium theme-text mb-2">
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                 Surah Chapter
               </label>
               <SurahInput
@@ -357,7 +357,7 @@ export default function Home() {
                 onChange={handleSurahChange}
               />
               {surahInfo && (
-                <p className="text-sm theme-text opacity-60 mt-1">
+                <p className="text-sm text-[var(--foreground)] opacity-60 mt-1">
                   {surahInfo.name} ({surahInfo.numberOfAyahs} ayahs)
                 </p>
               )}
@@ -365,7 +365,7 @@ export default function Home() {
 
             {/* Ayah Range */}
             <div>
-              <label className="block text-sm font-medium theme-text mb-2">
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                 Ayah Range
               </label>
               <AyahRangeInput
@@ -375,7 +375,7 @@ export default function Home() {
                 onAyahToChange={(to) => handleAyahRangeChange(ayahFrom, to)}
               />
               {surahInfo && (
-                <p className="text-sm theme-text opacity-60 mt-1">
+                <p className="text-sm text-[var(--foreground)] opacity-60 mt-1">
                   Valid range: 1 - {surahInfo.numberOfAyahs}
                 </p>
               )}
@@ -386,13 +386,13 @@ export default function Home() {
               {audioStream !== null && !isLoading && (
                 <div className="space-y-4">
                   {/* Audio Info Display */}
-                  <div className="theme-success-bg theme-success-border rounded-lg p-4 border">
+                  <div className="bg-[var(--success-bg)] border-[var(--success-border)] rounded-lg p-4 border">
                     <div className="text-center">
-                      <h3 className="font-medium theme-success-text">
+                      <h3 className="font-medium text-[var(--success-text)]">
                         {audioStream.surahName} - Ayah{" "}
                         {audioStream.ayahRange.from + currentAyahIndex}
                       </h3>
-                      <p className="text-sm theme-success-text opacity-80 mt-1">
+                      <p className="text-sm text-[var(--success-text)] opacity-80 mt-1">
                         {currentAyahIndex + 1} of {audioStream.totalAyahs} ayahs
                       </p>
                     </div>
@@ -454,8 +454,8 @@ export default function Home() {
 
             {/* Error Display */}
             {error && (
-              <div className="theme-error-bg theme-error-border rounded-lg p-4 border">
-                <p className="theme-error-text text-sm">{error}</p>
+              <div className="bg-[var(--error-bg)] border-[var(--error-border)] rounded-lg p-4 border">
+                <p className="text-[var(--error-text)] text-sm">{error}</p>
               </div>
             )}
           </div>

@@ -31,12 +31,12 @@ export default function Tooltip({
       {children}
       {isVisible && (
         <div
-          className={`absolute z-50 px-2 py-1 text-xs font-medium theme-card-bg theme-card-border rounded-md shadow-lg border whitespace-nowrap ${positionClasses[position]}`}
+          className={`absolute z-50 px-2 py-1 text-xs font-medium bg-[var(--card-bg)] border-[var(--card-border)] rounded-md shadow-lg border whitespace-nowrap ${positionClasses[position]}`}
         >
-          <span className="theme-text">{content}</span>
+          <span className="text-[var(--foreground)]">{content}</span>
           {/* Arrow */}
           <div
-            className={`absolute w-2 h-2 theme-card-bg theme-card-border border transform rotate-45 ${
+            className={`absolute w-2 h-2 bg-[var(--card-bg)] border-[var(--card-border)] border transform rotate-45 ${
               position === "top"
                 ? "top-full left-1/2 -translate-x-1/2 -translate-y-1/2 border-t-0 border-l-0"
                 : position === "bottom"

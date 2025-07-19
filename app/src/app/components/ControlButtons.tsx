@@ -58,13 +58,13 @@ export default function ControlButtons({
   return (
     <div className="flex items-center justify-center">
       {/* Single pill-shaped control bar container */}
-      <div className="theme-card-bg theme-card-border rounded-full shadow-sm border px-4 py-3 flex items-center space-x-4">
+      <div className="bg-[var(--card-bg)] border-[var(--card-border)] rounded-full shadow-sm border px-4 py-3 flex items-center space-x-4">
         {/* Download Button */}
         <Tooltip content="Download MP3">
           <button
             onClick={onDownload}
             disabled={isLoading || !audioStream}
-            className="flex items-center justify-center w-8 h-8 rounded-full hover:theme-hover-bg disabled:theme-disabled-bg disabled:theme-disabled-text theme-text transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[var(--button-hover)] disabled:bg-[var(--button-bg)] disabled:opacity-50 disabled:text-[var(--foreground)] disabled:opacity-40 text-[var(--foreground)] transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             <svg
               className="w-4 h-4"
@@ -83,20 +83,20 @@ export default function ControlButtons({
         </Tooltip>
 
         {/* Divider */}
-        <div className="w-px h-6 theme-divider"></div>
+        <div className="w-px h-6 bg-[var(--card-border)]"></div>
 
         {/* Play Button */}
         <Tooltip content={isPlaying ? "Pause" : "Play"}>
           <button
             onClick={onPlay}
             disabled={isLoading}
-            className="flex items-center justify-center w-10 h-10 theme-play-button-bg hover:theme-play-button-hover disabled:theme-disabled-bg rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="flex items-center justify-center w-10 h-10 bg-[var(--foreground)] hover:bg-[var(--button-text)] disabled:bg-[var(--button-bg)] disabled:opacity-50 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 theme-play-button-border"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[var(--background)]"></div>
             ) : isPlaying ? (
               <svg
-                className="w-5 h-5 theme-play-button-text"
+                className="w-5 h-5 text-[var(--background)]"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -104,7 +104,7 @@ export default function ControlButtons({
               </svg>
             ) : (
               <svg
-                className="w-5 h-5 theme-play-button-text ml-0.5"
+                className="w-5 h-5 text-[var(--background)] ml-0.5"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -115,7 +115,7 @@ export default function ControlButtons({
         </Tooltip>
 
         {/* Divider */}
-        <div className="w-px h-6 theme-divider"></div>
+        <div className="w-px h-6 bg-[var(--card-border)]"></div>
 
         {/* Loop Button */}
         <Tooltip content={isLooping ? "Disable loop" : "Enable loop"}>
@@ -124,8 +124,8 @@ export default function ControlButtons({
             disabled={isLoading}
             className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 ${
               isLooping
-                ? "theme-play-button-bg theme-play-button-text"
-                : "theme-text hover:theme-hover-bg"
+                ? "bg-[var(--foreground)] text-[var(--background)]"
+                : "text-[var(--foreground)] hover:bg-[var(--button-hover)]"
             }`}
           >
             <svg
@@ -149,7 +149,7 @@ export default function ControlButtons({
           <>
             {/* Divider */}
             <div
-              className={`w-px h-6 theme-divider ${
+              className={`w-px h-6 bg-[var(--card-border)] ${
                 isExiting ? "animate-pulse" : "animate-pulse"
               }`}
             ></div>
@@ -159,7 +159,7 @@ export default function ControlButtons({
               <button
                 onClick={onUpdateAudio}
                 disabled={isLoading}
-                className={`flex items-center justify-center w-8 h-8 theme-play-button-bg hover:theme-play-button-hover theme-play-button-text rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-400 ${
+                className={`flex items-center justify-center w-8 h-8 bg-[var(--foreground)] hover:bg-[var(--button-text)] text-[var(--background)] rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-400 ${
                   isExiting ? "update-button-exit" : "update-button-animate"
                 }`}
               >

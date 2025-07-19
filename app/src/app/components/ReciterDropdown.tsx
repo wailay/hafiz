@@ -78,19 +78,19 @@ export default function ReciterDropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 text-left theme-input-bg theme-input-border theme-input-text rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors border"
+        className="w-full px-4 py-3 text-left bg-[var(--input-bg)] border-[var(--input-border)] text-[var(--input-text)] rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 hover:bg-[var(--button-hover)] transition-colors border"
       >
         <div className="flex flex-col">
-          <span className="block truncate font-medium theme-text">
+          <span className="block truncate font-medium text-[var(--foreground)]">
             {selectedReciter.englishName}
           </span>
-          <span className="block truncate text-sm theme-text opacity-60">
+          <span className="block truncate text-sm text-[var(--foreground)] opacity-60">
             {selectedReciter.arabicName}
           </span>
         </div>
         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <svg
-            className="h-5 w-5 theme-text opacity-40"
+            className="h-5 w-5 text-[var(--foreground)] opacity-40"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -104,21 +104,21 @@ export default function ReciterDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-full theme-card-bg theme-card-border shadow-lg rounded-md border">
+        <div className="absolute z-10 mt-1 w-full bg-[var(--card-bg)] border-[var(--card-border)] shadow-lg rounded-md border">
           <ul className="max-h-60 overflow-auto rounded-md py-1 text-base">
             {filteredReciters.map((reciter) => (
               <li key={reciter.id}>
                 <button
                   onClick={() => handleReciterSelect(reciter)}
-                  className={`w-full px-4 py-3 text-left hover:theme-hover-bg focus:outline-none focus:theme-hover-bg ${
+                  className={`w-full px-4 py-3 text-left hover:bg-[var(--button-hover)] focus:outline-none focus:bg-[var(--button-hover)] transition-colors ${
                     selectedReciter.id === reciter.id
-                      ? "theme-success-bg theme-success-text"
-                      : "theme-text"
+                      ? "bg-[var(--success-bg)] text-[var(--success-text)]"
+                      : "text-[var(--foreground)]"
                   }`}
                 >
                   <div className="flex flex-col">
                     <span className="font-medium">{reciter.englishName}</span>
-                    <span className="text-sm theme-text opacity-60">
+                    <span className="text-sm text-[var(--foreground)] opacity-60">
                       {reciter.arabicName}
                     </span>
                   </div>
@@ -126,7 +126,7 @@ export default function ReciterDropdown({
               </li>
             ))}
           </ul>
-          <div className="px-4 py-3 text-sm theme-text opacity-60">
+          <div className="px-4 py-3 text-sm text-[var(--foreground)] opacity-60">
             {filteredReciters.length} reciters available
           </div>
         </div>

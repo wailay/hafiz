@@ -13,20 +13,20 @@ export default function ThemeToggle() {
   return (
     <div className="fixed top-4 right-4 z-50 flex items-center space-x-4">
       {/* Theme Toggle */}
-      <div className="flex items-center theme-toggle-bg rounded-full p-1 shadow-lg">
+      <div className="flex items-center bg-[var(--button-bg)] rounded-full p-1 shadow-lg">
         {/* Light Mode */}
         <button
           onClick={() => handleThemeChange("light")}
           className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${
             theme === "light"
-              ? "theme-toggle-active-bg shadow-sm"
-              : "hover:theme-toggle-hover-bg"
+              ? "bg-[var(--card-bg)] shadow-sm"
+              : "hover:bg-[var(--button-hover)]"
           }`}
           title="Light mode"
         >
           <svg
             className={`w-4 h-4 ${
-              theme === "light" ? "text-yellow-500" : "theme-text"
+              theme === "light" ? "text-yellow-500" : "text-[var(--foreground)]"
             }`}
             fill="none"
             stroke="currentColor"
@@ -46,14 +46,14 @@ export default function ThemeToggle() {
           onClick={() => handleThemeChange("system")}
           className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${
             theme === "system"
-              ? "theme-toggle-active-bg shadow-sm"
-              : "hover:theme-toggle-hover-bg"
+              ? "bg-[var(--card-bg)] shadow-sm"
+              : "hover:bg-[var(--button-hover)]"
           }`}
           title="System preference"
         >
           <svg
             className={`w-4 h-4 ${
-              theme === "system" ? "text-blue-500" : "theme-text"
+              theme === "system" ? "text-blue-500" : "text-[var(--foreground)]"
             }`}
             fill="none"
             stroke="currentColor"
@@ -73,14 +73,14 @@ export default function ThemeToggle() {
           onClick={() => handleThemeChange("dark")}
           className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${
             theme === "dark"
-              ? "theme-toggle-active-bg shadow-sm"
-              : "hover:theme-toggle-hover-bg"
+              ? "bg-[var(--card-bg)] shadow-sm"
+              : "hover:bg-[var(--button-hover)]"
           }`}
           title="Dark mode"
         >
           <svg
             className={`w-4 h-4 ${
-              theme === "dark" ? "text-indigo-500" : "theme-text"
+              theme === "dark" ? "text-indigo-500" : "text-[var(--foreground)]"
             }`}
             fill="none"
             stroke="currentColor"
