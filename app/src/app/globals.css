@@ -99,6 +99,17 @@ body {
   outline-offset: 2px;
 }
 
+/* Input placeholder styling */
+::placeholder {
+  color: #9ca3af;
+  opacity: 0.7;
+}
+
+[data-theme="dark"] ::placeholder {
+  color: #6b7280;
+  opacity: 0.7;
+}
+
 /* Custom animations */
 @keyframes slideIn {
   0% {

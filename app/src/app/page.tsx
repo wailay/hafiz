@@ -36,10 +36,6 @@ export default function Home() {
   const [audioStream, setAudioStream] = useState<AudioStream | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [surahInfo, setSurahInfo] = useState<{
-    numberOfAyahs: number;
-    name: string;
-  } | null>(null);
   const [currentAyahIndex, setCurrentAyahIndex] = useState(0);
   const [isPreferencesLoaded, setIsPreferencesLoaded] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -292,22 +288,37 @@ export default function Home() {
       setIsDownloading(true);
       setError(null);
 
-      // Fetch the WAV audio
-      const response = await fetch(audioStream.audioUrl);
-      if (!response.ok) {
+      // Generate filename
+      const filename = `${audioStream.surahName}_Ayah_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.mp3`;
+
+      // Fetch the WAV audio data
+      const wavResponse = await fetch(audioStream.audioUrl);
+      if (!wavResponse.ok) {
         throw new Error("Failed to fetch audio file");
       }
+      const wavBlob = await wavResponse.blob();
 
-      const wavBlob = await response.blob();
+      // Convert to MP3 using server-side API
+      const formData = new FormData();
+      formData.append("audio", wavBlob, "audio.wav");
+      formData.append("filename", filename);
 
-      // Generate WAV filename
-      const wavFilename = `${audioStream.surahName}_Ayah_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.wav`;
+      const response = await fetch("/api/convert-to-mp3", {
+        method: "POST",
+        body: formData,
+      });
 
-      // Download WAV directly
-      const url = URL.createObjectURL(wavBlob);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to convert audio");
+      }
+
+      // Download MP3 file
+      const mp3Blob = await response.blob();
+      const url = URL.createObjectURL(mp3Blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = wavFilename;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -404,11 +415,6 @@ export default function Home() {
                 surahNumberValue={surahNumber}
                 onChange={handleSurahChange}
               />
-              {surahInfo && (
-                <p className="text-sm text-[var(--foreground)] opacity-60 mt-1">
-                  {surahInfo.name} ({surahInfo.numberOfAyahs} ayahs)
-                </p>
-              )}
             </div>
 
             {/* Ayah Range */}
@@ -422,11 +428,6 @@ export default function Home() {
                 onAyahFromChange={(from) => handleAyahRangeChange(from, ayahTo)}
                 onAyahToChange={(to) => handleAyahRangeChange(ayahFrom, to)}
               />
-              {surahInfo && (
-                <p className="text-sm text-[var(--foreground)] opacity-60 mt-1">
-                  Valid range: 1 - {surahInfo.numberOfAyahs}
-                </p>
-              )}
             </div>
 
             {/* Content Display Area */}
