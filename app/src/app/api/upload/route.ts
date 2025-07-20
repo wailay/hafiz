@@ -23,8 +23,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    console.log("jsonResponse from api/upload route", jsonResponse);
-
     return NextResponse.json(jsonResponse);
   } catch (error) {
     console.error("Upload error:", error);

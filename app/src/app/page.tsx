@@ -305,6 +305,7 @@ export default function Home() {
       const blob = await upload(wavFilename, wavBlob, {
         access: "public",
         handleUploadUrl: "/api/upload",
+        multipart: true,
       });
 
       console.log("blob from client upload", blob);

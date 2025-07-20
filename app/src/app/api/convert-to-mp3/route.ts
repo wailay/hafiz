@@ -3,7 +3,7 @@ import { Lame } from "node-lame";
 import { writeFile, unlink } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
-import { del, list } from "@vercel/blob";
+import { del, head } from "@vercel/blob";
 
 export async function POST(request: NextRequest) {
   let blobName: string | null = null;
@@ -30,13 +30,33 @@ export async function POST(request: NextRequest) {
 
     console.log("blobUrl", blobUrl);
 
-    const listResponse = await list();
-    console.log("listResponse", listResponse);
+    const headResponse = await head(blobUrl);
+
+    const wavDownloadUrl = headResponse.downloadUrl;
 
     // Download WAV file from blob storage
-    const wavResponse = await fetch(blobUrl);
+    let wavResponse: Response;
+    let retryCount = 0;
+    const maxRetries = 10;
 
-    console.log("wav blobl fetch response", wavResponse);
+    do {
+      if (retryCount > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 4000));
+      }
+      wavResponse = await fetch(wavDownloadUrl);
+      console.log(
+        "Trying to fetch WAV file",
+        wavResponse.status,
+        "Retry count",
+        retryCount
+      );
+      retryCount++;
+    } while (!wavResponse.ok && retryCount < maxRetries);
+
+    if (!wavResponse.ok) {
+      throw new Error("Failed to fetch WAV file from blob storage");
+    }
+
     if (!wavResponse.ok) {
       throw new Error("Failed to fetch WAV file from blob storage");
     }
