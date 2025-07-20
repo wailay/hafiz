@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
+    "@vercel/blob": "^1.1.1",
     "@vercel/speed-insights": "^1.2.0",
     "next": "15.4.1",
     "node-lame": "^1.4.0",

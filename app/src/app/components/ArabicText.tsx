@@ -7,7 +7,7 @@ interface ArabicTextProps {
   fontSize?: string;
 }
 
-const uthmanicHafsFont = localFont({
+const kitabFont = localFont({
   src: "../assets/fonts/Kitab-Regular.ttf",
   display: "swap",
 });
@@ -15,7 +15,7 @@ const uthmanicHafsFont = localFont({
 export default function ArabicText({ text, fontSize }: ArabicTextProps) {
   return (
     <div
-      className={`text-lg leading-relaxed text-[var(--foreground)] ${uthmanicHafsFont.className}`}
+      className={`text-lg leading-relaxed text-[var(--foreground)] ${kitabFont.className}`}
       style={{
         direction: "rtl",
         textAlign: "right",

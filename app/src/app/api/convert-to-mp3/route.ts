@@ -3,16 +3,18 @@ import { Lame } from "node-lame";
 import { writeFile, unlink } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
+import { del } from "@vercel/blob";
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const audioFile = formData.get("audio") as File;
+    const blobUrl = formData.get("blobUrl") as string;
+    const blobName = formData.get("blobName") as string;
     const filename = formData.get("filename") as string;
 
-    if (!audioFile) {
+    if (!blobUrl || !blobName) {
       return NextResponse.json(
-        { error: "Audio file is required" },
+        { error: "Blob URL and blob name are required" },
         { status: 400 }
       );
     }
@@ -23,11 +25,15 @@ export async function POST(request: NextRequest) {
     const mp3Path = join(tempDir, `temp_${Date.now()}.mp3`);
 
     try {
-      // Write WAV file to temp directory
-      const wavBuffer = await audioFile.arrayBuffer();
+      // Download WAV file from blob storage
+      const wavResponse = await fetch(blobUrl);
+      if (!wavResponse.ok) {
+        throw new Error("Failed to fetch WAV file from blob storage");
+      }
+      const wavBuffer = await wavResponse.arrayBuffer();
       await writeFile(wavPath, Buffer.from(wavBuffer));
 
-      console.log(`WAV file written to: ${wavPath}`);
+      console.log(`WAV file downloaded from blob and written to: ${wavPath}`);
 
       // Convert WAV to MP3 using node-lame
       const encoder = new Lame({
@@ -55,13 +61,17 @@ export async function POST(request: NextRequest) {
         },
       });
     } finally {
-      // Clean up temporary files
+      // Clean up temporary files and blob storage
       try {
         await unlink(wavPath);
         await unlink(mp3Path);
         console.log("Temporary files cleaned up");
+
+        // Delete the WAV file from blob storage
+        await del(blobName);
+        console.log("WAV file deleted from blob storage");
       } catch (cleanupError) {
-        console.warn("Failed to clean up temporary files:", cleanupError);
+        console.warn("Failed to clean up files:", cleanupError);
       }
     }
   } catch (error) {

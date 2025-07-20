@@ -9,6 +9,7 @@ import ThemeToggle from "./components/ThemeToggle";
 import ArabicText from "./components/ArabicText";
 import { QuranApiService, AudioStream } from "./services/quranApi";
 import { APP_DESCRIPTION } from "./constant";
+import { upload } from "@vercel/blob/client";
 
 interface UserPreferences {
   selectedReciter: {
@@ -288,8 +289,9 @@ export default function Home() {
       setIsDownloading(true);
       setError(null);
 
-      // Generate filename
-      const filename = `${audioStream.surahName}_Ayah_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.mp3`;
+      // Generate filenames
+      const mp3Filename = `${audioStream.surahName}_Ayah_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.mp3`;
+      const wavFilename = `${audioStream.surahName}_Ayah_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.wav`;
 
       // Fetch the WAV audio data
       const wavResponse = await fetch(audioStream.audioUrl);
@@ -298,10 +300,20 @@ export default function Home() {
       }
       const wavBlob = await wavResponse.blob();
 
-      // Convert to MP3 using server-side API
+      // Upload WAV directly to blob storage from client
+
+      const blob = await upload(wavFilename, wavBlob, {
+        access: "public",
+        handleUploadUrl: "/api/upload",
+      });
+
+      console.log(`WAV file uploaded to blob storage: ${blob.url}`);
+
+      // Convert to MP3 using server-side API with blob URL
       const formData = new FormData();
-      formData.append("audio", wavBlob, "audio.wav");
-      formData.append("filename", filename);
+      formData.append("blobUrl", blob.url);
+      formData.append("blobName", blob.pathname);
+      formData.append("filename", mp3Filename);
 
       const response = await fetch("/api/convert-to-mp3", {
         method: "POST",
@@ -318,7 +330,7 @@ export default function Home() {
       const url = URL.createObjectURL(mp3Blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = filename;
+      a.download = mp3Filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
