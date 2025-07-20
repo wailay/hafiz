@@ -3,7 +3,7 @@ import { Lame } from "node-lame";
 import { writeFile, unlink } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
-import { del } from "@vercel/blob";
+import { del, list } from "@vercel/blob";
 
 export async function POST(request: NextRequest) {
   let blobName: string | null = null;
@@ -28,8 +28,15 @@ export async function POST(request: NextRequest) {
     wavPath = join(tempDir, `temp_${Date.now()}.wav`);
     mp3Path = join(tempDir, `temp_${Date.now()}.mp3`);
 
+    console.log("blobUrl", blobUrl);
+
+    const listResponse = await list();
+    console.log("listResponse", listResponse);
+
     // Download WAV file from blob storage
     const wavResponse = await fetch(blobUrl);
+
+    console.log("wav blobl fetch response", wavResponse);
     if (!wavResponse.ok) {
       throw new Error("Failed to fetch WAV file from blob storage");
     }
@@ -72,6 +79,8 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
+    await delBlob(blobName);
+
     // Clean up temporary files and blob storage
     try {
       // Clean up temporary files
@@ -83,8 +92,6 @@ export async function POST(request: NextRequest) {
         await unlink(mp3Path);
         console.log("MP3 temporary file cleaned up");
       }
-
-      await delBlob(blobName);
     } catch (cleanupError) {
       console.warn("Failed to clean up files:", cleanupError);
     }

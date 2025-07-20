@@ -305,8 +305,9 @@ export default function Home() {
       const blob = await upload(wavFilename, wavBlob, {
         access: "public",
         handleUploadUrl: "/api/upload",
-        multipart: true,
       });
+
+      console.log("blob from client upload", blob);
 
       // Convert to MP3 using server-side API with blob URL
       const formData = new FormData();
