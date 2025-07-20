@@ -308,8 +308,6 @@ export default function Home() {
         multipart: true,
       });
 
-      console.log(`WAV file uploaded to blob storage: ${blob.url}`);
-
       // Convert to MP3 using server-side API with blob URL
       const formData = new FormData();
       formData.append("blobUrl", blob.url);
