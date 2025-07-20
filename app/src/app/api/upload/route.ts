@@ -14,8 +14,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.log(`Uploading to: ${pathname}`);
         return {
           allowedContentTypes: ["audio/wav", "audio/mpeg"],
-          maximumSizeInBytes: 100 * 1024 * 1024, // 100MB
-          validUntil: Date.now() + 10 * 60 * 1000, // 10 minutes
           allowOverwrite: true,
         };
       },
