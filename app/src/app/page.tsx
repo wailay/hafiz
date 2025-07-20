@@ -290,8 +290,8 @@ export default function Home() {
       setError(null);
 
       // Generate filenames
-      const mp3Filename = `${audioStream.surahName}_Ayah_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.mp3`;
-      const wavFilename = `${audioStream.surahName}_Ayah_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.wav`;
+      const mp3Filename = `${audioStream.surahName}_${selectedReciter.englishName}_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.mp3`;
+      const wavFilename = `${audioStream.surahName}_${selectedReciter.englishName}_${audioStream.ayahRange.from}-${audioStream.ayahRange.to}.wav`;
 
       // Fetch the WAV audio data
       const wavResponse = await fetch(audioStream.audioUrl);
@@ -305,6 +305,7 @@ export default function Home() {
       const blob = await upload(wavFilename, wavBlob, {
         access: "public",
         handleUploadUrl: "/api/upload",
+        multipart: true,
       });
 
       console.log(`WAV file uploaded to blob storage: ${blob.url}`);
