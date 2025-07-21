@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Lame } from "node-lame";
+import * as lame from "@breezystack/lamejs";
+
 import { writeFile, unlink } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
@@ -8,7 +9,6 @@ import { del, head } from "@vercel/blob";
 export async function POST(request: NextRequest) {
   let blobName: string | null = null;
   let wavPath: string | null = null;
-  let mp3Path: string | null = null;
 
   try {
     const formData = await request.formData();
@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
     // Generate temporary file paths
     const tempDir = tmpdir();
     wavPath = join(tempDir, `temp_${Date.now()}.wav`);
-    mp3Path = join(tempDir, `temp_${Date.now()}.mp3`);
 
     console.log("blobUrl", blobUrl);
 
@@ -40,9 +39,7 @@ export async function POST(request: NextRequest) {
     const maxRetries = 10;
 
     do {
-      if (retryCount > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 4000));
-      }
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       wavResponse = await fetch(wavDownloadUrl);
       console.log(
         "Trying to fetch WAV file",
@@ -65,29 +62,75 @@ export async function POST(request: NextRequest) {
 
     console.log(`WAV file downloaded from blob and written to: ${wavPath}`);
 
-    // Convert WAV to MP3 using node-lame
-    const encoder = new Lame({
-      output: mp3Path,
-      bitrate: 128,
-    }).setFile(wavPath);
+    // @ts-expect-error - lamejs is not typed
+    const wavInfo = new lame.WavHeader.readHeader(new DataView(wavBuffer));
 
-    console.log("Starting MP3 conversion...");
-    await encoder.encode();
-    console.log("MP3 conversion completed");
+    console.log("WAV Info:", {
+      "Data Offset": wavInfo.dataOffset,
+      "Data Length": wavInfo.dataLen,
+      "Sample Rate": wavInfo.sampleRate,
+      Channels: wavInfo.channels,
+    });
 
-    // Read the MP3 file
-    const mp3Buffer = await readFile(mp3Path);
-    console.log(`MP3 file size: ${mp3Buffer.length} bytes`);
+    // Extract all samples from the WAV data
+    const allSamples = new Int16Array(
+      wavBuffer,
+      wavInfo.dataOffset,
+      wavInfo.dataLen / 2
+    );
 
-    // Generate filename
-    const mp3Filename = filename ? filename : "audio.mp3";
+    // For stereo, samples are interleaved: [L, R, L, R, L, R, ...]
+    // For mono, all samples are sequential
+    let leftSamples: Int16Array;
+    let rightSamples: Int16Array;
+
+    if (wavInfo.channels === 2) {
+      // Stereo: separate left and right channels
+      const numSamples = allSamples.length / 2;
+      leftSamples = new Int16Array(numSamples);
+      rightSamples = new Int16Array(numSamples);
+
+      for (let i = 0; i < numSamples; i++) {
+        leftSamples[i] = allSamples[i * 2]; // Even indices (0, 2, 4, ...)
+        rightSamples[i] = allSamples[i * 2 + 1]; // Odd indices (1, 3, 5, ...)
+      }
+    } else {
+      // Mono: use same samples for both channels
+      leftSamples = allSamples;
+      rightSamples = allSamples;
+    }
+    const encoder = new lame.Mp3Encoder(
+      wavInfo.channels,
+      wavInfo.sampleRate,
+      128
+    );
+
+    const mp3Data: Uint8Array[] = [];
+
+    const chunkSize = 1152;
+
+    for (let i = 0; i < leftSamples.length; i += chunkSize) {
+      const leftChunk = leftSamples.subarray(i, i + chunkSize);
+      const rightChunk = rightSamples.subarray(i, i + chunkSize);
+      const mp3buf = encoder.encodeBuffer(leftChunk, rightChunk);
+      if (mp3buf.length > 0) {
+        mp3Data.push(mp3buf);
+      }
+    }
+
+    const finalChunk = encoder.flush();
+    if (finalChunk && finalChunk.length > 0) {
+      mp3Data.push(finalChunk);
+    }
+
+    const mp3Buffer = new Blob(mp3Data);
 
     // Return MP3 file
     return new NextResponse(mp3Buffer, {
       headers: {
         "Content-Type": "audio/mpeg",
-        "Content-Disposition": `attachment; filename="${mp3Filename}"`,
-        "Content-Length": mp3Buffer.length.toString(),
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": mp3Buffer.size.toString(),
       },
     });
   } catch (error) {
@@ -108,20 +151,10 @@ export async function POST(request: NextRequest) {
         await unlink(wavPath);
         console.log("WAV temporary file cleaned up");
       }
-      if (mp3Path) {
-        await unlink(mp3Path);
-        console.log("MP3 temporary file cleaned up");
-      }
     } catch (cleanupError) {
       console.warn("Failed to clean up files:", cleanupError);
     }
   }
-}
-
-// Helper function to read file
-async function readFile(path: string): Promise<Buffer> {
-  const { readFile } = await import("fs/promises");
-  return readFile(path);
 }
 
 async function delBlob(blobName: string | null) {

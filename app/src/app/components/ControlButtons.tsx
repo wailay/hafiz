@@ -42,7 +42,7 @@ export default function ControlButtons({
       {/* Single pill-shaped control bar container */}
       <div className="bg-[var(--card-bg)] border-[var(--card-border)] rounded-full shadow-sm border px-4 py-3 flex items-center space-x-4">
         {/* Download Button */}
-        <Tooltip content={isDownloading ? "Downloading..." : "Download MP3"}>
+        <Tooltip content={isDownloading ? "Generating MP3..." : "Download MP3"}>
           <button
             onClick={onDownload}
             disabled={isLoading || !audioStream || isDownloading}
