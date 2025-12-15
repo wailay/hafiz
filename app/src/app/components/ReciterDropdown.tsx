@@ -15,11 +15,10 @@ interface ReciterDropdownProps {
 
 // Reciters available in the AlQuran.cloud API
 const reciters: Reciter[] = [
-  { id: "ar.husary", englishName: "Husary", arabicName: "محمود خليل الحصري" },
   {
-    id: "ar.alafasy",
-    englishName: "Mishary Alafasy",
-    arabicName: "مشاري العفاسي",
+    id: "ar.abdullahbasfar",
+    englishName: "Abdullah Basfar",
+    arabicName: "عبد الله بصفر",
   },
   {
     id: "ar.abdurrahmaansudais",
@@ -27,14 +26,79 @@ const reciters: Reciter[] = [
     arabicName: "عبدالرحمن السديس",
   },
   {
-    id: "ar.mahermuaiqly",
-    arabicName: "ماهر المعيقلي",
-    englishName: "Maher Al Muaiqly",
+    id: "ar.abdulsamad",
+    englishName: "Abdul Samad",
+    arabicName: "عبدالباسط عبدالصمد",
   },
   {
-    id: "ar.minshawi",
-    arabicName: "محمد صديق المنشاوي",
-    englishName: "Minshawi",
+    id: "ar.shaatree",
+    englishName: "Abu Bakr Ash-Shaatree",
+    arabicName: "أبو بكر الشاطري",
+  },
+  {
+    id: "ar.ahmedajamy",
+    englishName: "Ahmed ibn Ali al-Ajamy",
+    arabicName: "أحمد بن علي العجمي",
+  },
+  {
+    id: "ar.alafasy",
+    englishName: "Alafasy",
+    arabicName: "مشاري العفاسي",
+  },
+  {
+    id: "ar.hanirifai",
+    englishName: "Hani Rifai",
+    arabicName: "هاني الرفاعي",
+  },
+  {
+    id: "ar.husary",
+    englishName: "Husary",
+    arabicName: "محمود خليل الحصري",
+  },
+  {
+    id: "ar.husarymujawwad",
+    englishName: "Husary (Mujawwad)",
+    arabicName: "محمود خليل الحصري (المجود)",
+  },
+  {
+    id: "ar.hudhaify",
+    englishName: "Hudhaify",
+    arabicName: "علي بن عبدالرحمن الحذيفي",
+  },
+  {
+    id: "ar.ibrahimakhbar",
+    englishName: "Ibrahim Akhdar",
+    arabicName: "إبراهيم الأخضر",
+  },
+  {
+    id: "ar.mahermuaiqly",
+    englishName: "Maher Al Muaiqly",
+    arabicName: "ماهر المعيقلي",
+  },
+  {
+    id: "ar.muhammadayyoub",
+    englishName: "Muhammad Ayyoub",
+    arabicName: "محمد أيوب",
+  },
+  {
+    id: "ar.muhammadjibreel",
+    englishName: "Muhammad Jibreel",
+    arabicName: "محمد جبريل",
+  },
+  {
+    id: "ar.saoodshuraym",
+    englishName: "Saood bin Ibraaheem Ash-Shuraym",
+    arabicName: "سعود الشريم",
+  },
+  {
+    id: "ar.parhizgar",
+    englishName: "Parhizgar",
+    arabicName: "شهریار پرهیزگار",
+  },
+  {
+    id: "ar.aymanswoaid",
+    englishName: "Ayman Sowaid",
+    arabicName: "أيمن سويد",
   },
 ];
 
@@ -105,6 +169,16 @@ export default function ReciterDropdown({
 
       {isOpen && (
         <div className="absolute z-10 mt-1 w-full bg-[var(--card-bg)] border-[var(--card-border)] shadow-lg rounded-md border">
+          <div className="p-2">
+            <input
+              type="text"
+              className="w-full px-3 py-2 bg-[var(--input-bg)] border-[var(--input-border)] text-[var(--input-text)] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 border"
+              placeholder="Search by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
           <ul className="max-h-60 overflow-auto rounded-md py-1 text-base">
             {filteredReciters.map((reciter) => (
               <li key={reciter.id}>
@@ -127,7 +201,7 @@ export default function ReciterDropdown({
             ))}
           </ul>
           <div className="px-4 py-3 text-sm text-[var(--foreground)] opacity-60">
-            {filteredReciters.length} reciters available
+            {filteredReciters.length} reciters {searchTerm && "found"}
           </div>
         </div>
       )}

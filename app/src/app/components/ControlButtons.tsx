@@ -83,7 +83,7 @@ export default function ControlButtons({
             className="flex items-center justify-center w-10 h-10 bg-[var(--foreground)] hover:bg-[var(--button-text)] disabled:bg-[var(--button-bg)] disabled:opacity-50 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-[var(--spinner-color)]/30 border-t-[var(--spinner-color)]"></div>
             ) : isPlaying ? (
               <svg
                 className="w-5 h-5 text-[var(--background)]"

@@ -23,6 +23,7 @@
   --space-gradient-1: #e0f2fe;
   --space-gradient-2: #f0f9ff;
   --space-gradient-3: #f8fafc;
+  --spinner-color: #000000;
 }
 
 [data-theme="dark"] {
@@ -48,6 +49,7 @@
   --space-gradient-1: #0f172a;
   --space-gradient-2: #1e293b;
   --space-gradient-3: #334155;
+  --spinner-color: #ffffff;
 }
 
 @theme inline {
